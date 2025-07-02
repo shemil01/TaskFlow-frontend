@@ -10,7 +10,6 @@ import { FaApple } from "react-icons/fa";
 export default function SignupPage() {
   const router = useRouter();
   const [form, setForm] = useState({ name: "", email: "", password: "" });
-  const [error, setError] = useState("");
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -29,7 +28,7 @@ export default function SignupPage() {
     const data = await res.json();
 
     if (!res.ok) {
-      setError(data.message || "Signup failed");
+      alert(data.message || "Signup failed");
       return;
     }
 
@@ -45,7 +44,7 @@ export default function SignupPage() {
       router.push("/");
       alert("registration completed");
     } else {
-      setError("Signup succeeded but login failed");
+      alert("Signup succeeded but login failed");
     }
   };
 

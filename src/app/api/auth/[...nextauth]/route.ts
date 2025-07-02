@@ -50,14 +50,19 @@ const handler = NextAuth({
   callbacks: {
     async jwt({ token, user, account, profile }) {
       if (account?.provider === "google" && profile?.email) {
+        const googleProfile = profile as {
+          email: string;
+          name: string;
+          picture: string;
+        };
         try {
           const res = await fetch("http://localhost:6499/api/google-auth", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
-              name: profile.name,
-              email: profile.email,
-              avatar: profile.picture,
+              email: googleProfile.email,
+              name: googleProfile.name,
+              avatar: googleProfile.picture,
             }),
           });
 
