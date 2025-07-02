@@ -80,7 +80,7 @@ const handler = NextAuth({
       return token;
     },
     async session({ session, token }) {
-      session.user.id = token.userId;
+      session.user.id = token.userId  as string;
       session.user.accessToken = token.accessToken;
       session.user.refreshToken = token.refreshToken;
       return session;
