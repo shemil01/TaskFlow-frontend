@@ -1,14 +1,13 @@
-'use client';
+"use client";
 import { FileText } from "lucide-react";
 import Link from "next/link";
 import { useSession, signOut } from "next-auth/react";
-import Image from "next/image";
 
 export const Header = () => {
   const { data: session, status } = useSession();
 
   const user = session?.user;
-  console.log("user",user)
+  console.log("user", user);
 
   return (
     <nav className="container flex items-center justify-between py-4 lg:px-4 px-2 mx-auto">
@@ -41,9 +40,14 @@ export const Header = () => {
                 className="rounded-full"
               />
             ) : (
-<span className="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center text-lg font-bold text-white">
-          {user?.email[0] || ""}
-        </span>            )}
+              <img
+                src={'/avatar.png'}
+                alt="avatar"
+                width={32}
+                height={32}
+                className="rounded-full"
+              />
+            )}
             <button
               onClick={() => signOut({ callbackUrl: "/login" })}
               className="text-sm text-red-600"
