@@ -6,21 +6,26 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { FaApple } from "react-icons/fa";
 import { FcGoogle } from "react-icons/fc";
+import { toast } from "react-toastify";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState<boolean>(false);
   const router = useRouter();
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
+    setLoading(true);
     const res = await signIn("credentials", {
       redirect: false,
       email,
       password,
       callbackUrl: "/",
     });
+    setLoading(false);
     if (res?.ok) {
+      toast.success("Login successfull");
       router.push("/");
     } else {
       alert("Invalid credentials");
@@ -65,9 +70,13 @@ export default function LoginPage() {
           </div>
           <button
             type="submit"
-            className="w-full py-2.5 mt-4 bg-green-600 text-white rounded-md hover:bg-green-700"
+            className="flex justify-center items-center w-full py-2.5 mt-4 bg-green-600 text-white rounded-md hover:bg-green-700"
           >
-            Signup
+            {loading ? (
+              <div className="animate-spin rounded-full h-5 w-5 border-t-2 border-b-2 border-white"></div>
+            ) : (
+              "Login"
+            )}{" "}
           </button>
         </form>
 

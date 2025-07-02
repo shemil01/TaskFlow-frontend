@@ -6,10 +6,12 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { FcGoogle } from "react-icons/fc";
 import { FaApple } from "react-icons/fa";
+import { toast } from "react-toastify";
 
 export default function SignupPage() {
   const router = useRouter();
   const [form, setForm] = useState({ name: "", email: "", password: "" });
+  const [loading, setLoading] = useState<boolean>(false);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -17,8 +19,8 @@ export default function SignupPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setLoading(true);
 
-    // ✅ Signup with backend
     const res = await fetch("http://localhost:6499/api/signup", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -26,11 +28,12 @@ export default function SignupPage() {
     });
 
     const data = await res.json();
-
+    setLoading(false);
     if (!res.ok) {
       alert(data.message || "Signup failed");
       return;
     }
+    toast.success("Registration successfull");
 
     // ✅ Auto-login with NextAuth
     const loginRes = await signIn("credentials", {
@@ -97,9 +100,13 @@ export default function SignupPage() {
           </div>
           <button
             type="submit"
-            className="w-full py-2.5 mt-4 bg-green-600 text-white rounded-md hover:bg-green-700"
+            className="flex justify-center items-center w-full py-2.5 mt-4 bg-green-600 text-white rounded-md hover:bg-green-700"
           >
-            Signup
+            {loading ? (
+              <div className="animate-spin rounded-full h-5 w-5 border-t-2 border-b-2 border-white"></div>
+            ) : (
+              "Signup"
+            )}
           </button>
         </form>
 
