@@ -31,21 +31,10 @@ export default function LoginPage() {
     setLoading(false);
     if (res?.ok) {
       const session = await getSession();
-      dispatch(setUser(session?.user))
+      dispatch(setUser(session?.user));
       toast.success("Login successfull");
       console.log("✅ AUTH RESPONSE:", session);
       console.log("✅ AUTH session:", session?.user?.accessToken);
-
-      Cookies.set("accessToken", session?.user?.accessToken, {
-        httpOnly: true,
-        sameSite: "lax",
-        secure: false,
-      });
-      Cookies.set("refreshToken", session?.user?.refreshToken, {
-        httpOnly: true,
-        sameSite: "lax",
-        secure: false,
-      });
       router.push("/");
     } else {
       alert("Invalid credentials");
@@ -105,7 +94,11 @@ export default function LoginPage() {
         {/* Social Buttons */}
         <div className="flex space-x-2">
           <button
-            onClick={() => signIn("google", { callbackUrl: "/" })}
+            onClick={async () => {
+              const res = await signIn("google", {
+                callbackUrl: "/", 
+              });
+            }}
             className="border border-gray-500 rounded-md flex items-center px-4 py-2 space-x-2"
           >
             <FcGoogle />

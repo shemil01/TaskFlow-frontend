@@ -48,46 +48,22 @@ const handler = NextAuth({
   session: {
     strategy: "jwt",
   },
-  callbacks: {
-    async jwt({ token, user, account, profile }) {
-      if (account?.provider === "google" && profile?.email) {
-        const googleProfile = profile as {
-          email: string;
-          name: string;
-          picture: string;
-        };
-        try {
-          const res = await fetch("http://localhost:6499/api/google-auth", {
-            method: "POST",
-            credentials: "include",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              email: googleProfile.email,
-              name: googleProfile.name,
-              avatar: googleProfile.picture,
-            }),
-          });
-
-          const data = await res.json();
-          token.userId = data.user._id;
-        } catch (err) {
-          console.error("Google user sync failed", err);
-        }
-      }
-
-      if (user) {
-        token.accessToken = user.accessToken;
-        token.refreshToken = user.refreshToken;
-      }
-      return token;
-    },
-    async session({ session, token }) {
-      session.user.id = token.userId as string;
-      session.user.accessToken = token.accessToken;
-      session.user.refreshToken = token.refreshToken;
-      return session;
-    },
+ callbacks: {
+  async jwt({ token, user }) {
+    if (user) {
+      token.accessToken = user.accessToken;
+      token.refreshToken = user.refreshToken;
+    }
+    return token;
   },
+  async session({ session, token }) {
+    session.user.id = token.userId as string;
+    session.user.accessToken = token.accessToken;
+    session.user.refreshToken = token.refreshToken;
+    return session;
+  },
+}
+,
   pages: {
     signIn: "/login",
   },
