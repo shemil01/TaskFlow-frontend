@@ -16,6 +16,7 @@ const handler = NextAuth({
         const res = await fetch("http://localhost:6499/api/login", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
+          credentials: "include",
           body: JSON.stringify({
             email: credentials?.email,
             password: credentials?.password,
@@ -58,6 +59,7 @@ const handler = NextAuth({
         try {
           const res = await fetch("http://localhost:6499/api/google-auth", {
             method: "POST",
+            credentials: "include",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
               email: googleProfile.email,
@@ -80,7 +82,7 @@ const handler = NextAuth({
       return token;
     },
     async session({ session, token }) {
-      session.user.id = token.userId  as string;
+      session.user.id = token.userId as string;
       session.user.accessToken = token.accessToken;
       session.user.refreshToken = token.refreshToken;
       return session;

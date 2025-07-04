@@ -30,7 +30,7 @@ export const Header = () => {
       <div className="flex lg:justify-end lg:flex-1 items-center gap-4">
         {status === "authenticated" ? (
           <>
-            <Link href="/upload">Upload a PDF</Link>
+            <Link href="/dashboard">create Organization</Link>
             {user?.image ? (
               <img
                 src={user.image}

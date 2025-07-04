@@ -7,12 +7,17 @@ import { useState } from "react";
 import { FaApple } from "react-icons/fa";
 import { FcGoogle } from "react-icons/fc";
 import { toast } from "react-toastify";
+import { getSession } from "next-auth/react";
+import Cookies from "js-cookie";
+import { useDispatch } from "react-redux";
+import { setUser } from "../../lib/features/userSlice";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState<boolean>(false);
   const router = useRouter();
+  const dispatch = useDispatch();
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -25,7 +30,22 @@ export default function LoginPage() {
     });
     setLoading(false);
     if (res?.ok) {
+      const session = await getSession();
+      dispatch(setUser(session?.user))
       toast.success("Login successfull");
+      console.log("✅ AUTH RESPONSE:", session);
+      console.log("✅ AUTH session:", session?.user?.accessToken);
+
+      Cookies.set("accessToken", session?.user?.accessToken, {
+        httpOnly: true,
+        sameSite: "lax",
+        secure: false,
+      });
+      Cookies.set("refreshToken", session?.user?.refreshToken, {
+        httpOnly: true,
+        sameSite: "lax",
+        secure: false,
+      });
       router.push("/");
     } else {
       alert("Invalid credentials");

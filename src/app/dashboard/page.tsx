@@ -1,9 +1,18 @@
-import React from 'react'
 
-const page = () => {
+import BgGradient from "@/components/common/BgGradient";
+import CreateOrganization from "@/components/home/OrgSection";
+
+const Dashboard = () => {
+
+
   return (
-    <div>page</div>
-  )
-}
+    <div className="relative w-full">
+      <BgGradient />
+      <div className="flex flex-col w-full">
+        <CreateOrganization />
+      </div>
+    </div>
+  );
+};
 
-export default page
+export default Dashboard;

@@ -6,10 +6,11 @@ const protectedRoutes = ["/dashboard", "/profile", "/admin"];
 
 export async function middleware(req: NextRequest) {
   const token = await getToken({ req, secret: process.env.NEXT_PUBLIC_NEXTAUTH_SECRET });
+  console.log("token::",token)
   const { pathname } = req.nextUrl;
 
   // Only protect specific routes
-  const isProtected = protectedRoutes.some((route) =>
+  const isProtected = protectedRoutes.some((route) => 
     pathname.startsWith(route)
   );
 
