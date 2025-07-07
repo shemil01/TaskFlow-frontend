@@ -2,9 +2,9 @@
 
 import apiClient from "@/utils/apiClient";
 import { Users, Building2, MoreHorizontal } from "lucide-react";
+import { useState } from "react";
 import { toast } from "react-toastify";
-
-
+import EditProject from "./EditProject";
 
 interface User {
   _id: string;
@@ -13,33 +13,54 @@ interface User {
 }
 
 interface Project {
-  _id:string;
-  name:string;
-  description:string;
-  orgId:string;
-  createdBy:User;
-  members:User[];
+  _id: string;
+  name: string;
+  description: string;
+  orgId: string;
+  createdBy: User;
+  members: User[];
 }
-
 
 interface ProjectCardProps {
   project: Project;
 }
-const ProjectCard:React.FC<ProjectCardProps> = ({ project }) => {
+const ProjectCard: React.FC<ProjectCardProps> = ({ project }) => {
+  const [modalOpen, setModalOpen] = useState<boolean>(false);
+  const [showUserSelect, setShowUserSelect] = useState(false);
+  const [selectedUserId, setSelectedUserId] = useState("");
 
 
-  
-  const handleDelete = async (id:string) => {
-    try {
-      const response = await apiClient.delete(`/projects/${id}`)
-      console.log("resd:",response)
-toast.success(response.message);
-    } catch (error) {
-      console.log(error)
-    }
+
+const handleAddMember = async () => {
+  if (!selectedUserId) return;
+
+  try {
+    const res = await apiClient.put(`/projects/${project._id}/${selectedUserId}`);
+    toast.success("Member added");
+
+    // Optional: update UI or reload projects from API
+    // You can use a Redux action like dispatch(fetchProjects()) if needed
+
+    setShowUserSelect(false);
+    setSelectedUserId("");
+  } catch (err) {
+    console.error(err);
+    toast.error("Failed to add member");
   }
+};
 
-    const getInitials = (name:string) => {
+
+  const handleDelete = async (id: string) => {
+    try {
+      const response = await apiClient.delete(`/projects/${id}`);
+      console.log("resd:", response);
+      toast.success(response.message);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const getInitials = (name: string) => {
     return name
       .split(" ")
       .map((n) => n[0])
@@ -97,14 +118,14 @@ toast.success(response.message);
                 className="rounded-full"
               />
             ) : (
-                 <div
-                  className={`w-full h-full 
+              <div
+                className={`w-full h-full 
                  flex items-center justify-center bg-green-400`}
-                >
-                  <span className="text-white text-xs font-medium ">
-                    {getInitials(project.createdBy.name)}
-                  </span>
-                </div>
+              >
+                <span className="text-white text-xs font-medium ">
+                  {getInitials(project.createdBy.name)}
+                </span>
+              </div>
             )}
           </div>
           <div>
@@ -156,22 +177,49 @@ toast.success(response.message);
             </div>
           ))}
 
-          {project.members.length > 4 && (
-            <div
-              className="w-8 h-8 bg-slate-200 rounded-full flex items-center justify-center border-2 border-white shadow-sm"
-              style={{ marginLeft: "-8px" }}
-            >
-              <span className="text-slate-600 text-xs font-medium">
-                +{project.members.length - 4}
-              </span>
-            </div>
+          {project.members.length <= 4 && (
+            <>
+              <button
+                onClick={() => setShowUserSelect(true)}
+                className="w-8 h-8 border-2 border-dashed border-slate-300 rounded-full flex items-center justify-center hover:border-blue-400 hover:bg-blue-50 transition-colors"
+              >
+                <span className="text-slate-400 text-lg">+</span>
+              </button>
+
+              {showUserSelect && (
+                <div className="absolute mt-2 bg-white shadow-md border rounded-lg p-4 z-50">
+                  <select
+                    value={selectedUserId}
+                    onChange={(e) => setSelectedUserId(e.target.value)}
+                    className="border px-2 py-1 rounded mb-2"
+                  >
+                    <option value="">Select user</option>
+                    {/* Replace this list with dynamic user list */}
+                    <option value="USER_ID_1">User 1</option>
+                    <option value="USER_ID_2">User 2</option>
+                  </select>
+                  <button
+                    onClick={handleAddMember}
+                    className="ml-2 px-3 py-1 bg-blue-600 text-white text-sm rounded hover:bg-blue-700"
+                  >
+                    Add
+                  </button>
+                  <button
+                    onClick={() => setShowUserSelect(false)}
+                    className="ml-2 px-3 py-1 text-sm text-gray-600 hover:underline"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              )}
+            </>
           )}
 
-          {project.members.length <= 4 && (
+          {/* {project.members.length <= 4 && (
             <button className="w-8 h-8 border-2 border-dashed border-slate-300 rounded-full flex items-center justify-center hover:border-blue-400 hover:bg-blue-50 transition-colors">
               <span className="text-slate-400 text-lg">+</span>
             </button>
-          )}
+          )} */}
         </div>
       </div>
 
@@ -181,14 +229,29 @@ toast.success(response.message);
           View Project
         </button>
         <div className="flex items-center space-x-2">
-          <button className="px-3 py-2 text-slate-600 text-sm font-medium rounded-lg hover:bg-slate-100 transition-colors">
+          <button
+            onClick={() => setModalOpen(true)}
+            className="px-3 py-2 text-slate-600 text-sm font-medium rounded-lg hover:bg-slate-100 transition-colors"
+          >
             Edit
           </button>
-          <button onClick={()=>handleDelete(project?._id)} className="px-3 py-2 text-red-600 text-sm font-medium rounded-lg hover:bg-red-50 transition-colors">
+          <button
+            onClick={() => handleDelete(project?._id)}
+            className="px-3 py-2 text-red-600 text-sm font-medium rounded-lg hover:bg-red-50 transition-colors"
+          >
             Delete
           </button>
         </div>
       </div>
+      {modalOpen && (
+        <div className="fixed inset-0 bg-gray-900/50 backdrop-blur-sm z-50 flex justify-center items-center p-4">
+          <EditProject
+            isOpen={modalOpen}
+            onClose={() => setModalOpen(false)}
+            project={project}
+          />
+        </div>
+      )}
     </div>
   );
 };
