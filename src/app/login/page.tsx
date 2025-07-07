@@ -8,7 +8,6 @@ import { FaApple } from "react-icons/fa";
 import { FcGoogle } from "react-icons/fc";
 import { toast } from "react-toastify";
 import { getSession } from "next-auth/react";
-import Cookies from "js-cookie";
 import { useDispatch } from "react-redux";
 import { setUser } from "../../lib/features/userSlice";
 
@@ -26,16 +25,25 @@ export default function LoginPage() {
       redirect: false,
       email,
       password,
-      callbackUrl: "/",
+      callbackUrl: "/projects",
     });
     setLoading(false);
     if (res?.ok) {
       const session = await getSession();
-      dispatch(setUser(session?.user));
+if (session?.user) {
+  dispatch(
+    setUser({
+      _id: session.user.id,
+      name: session.user.name || "",
+      email: session.user.email || "",
+      password: "", // Or omit this field if not required
+      role: "user", // If you store roles
+    })
+  );
+}
       toast.success("Login successfull");
       console.log("✅ AUTH RESPONSE:", session);
-      console.log("✅ AUTH session:", session?.user?.accessToken);
-      router.push("/");
+      router.push("/projects");
     } else {
       alert("Invalid credentials");
     }
@@ -95,8 +103,8 @@ export default function LoginPage() {
         <div className="flex space-x-2">
           <button
             onClick={async () => {
-              const res = await signIn("google", {
-                callbackUrl: "/", 
+            signIn("google", {
+                callbackUrl: "/projects", 
               });
             }}
             className="border border-gray-500 rounded-md flex items-center px-4 py-2 space-x-2"

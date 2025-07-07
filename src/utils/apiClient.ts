@@ -5,10 +5,11 @@ const apiClient = axios.create({
   baseURL: "http://localhost:6499/api",
   withCredentials:true
 });
-  const session = await getSession();
 
 // Request interceptor for adding authorization token
-apiClient.interceptors.request.use((config) => {
+apiClient.interceptors.request.use(async(config) => {
+    const session = await getSession();
+
   const token = session?.user?.accessToken
 ;
   if (token) {

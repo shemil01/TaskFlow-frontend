@@ -32,6 +32,7 @@ const handler = NextAuth({
             email: data.user.email,
             accessToken: data.accessToken,
             refreshToken: data.refreshToken,
+            avatar: data.user.avatar,
           };
         }
 
@@ -48,22 +49,59 @@ const handler = NextAuth({
   session: {
     strategy: "jwt",
   },
- callbacks: {
-  async jwt({ token, user }) {
-    if (user) {
-      token.accessToken = user.accessToken;
-      token.refreshToken = user.refreshToken;
-    }
-    return token;
+  callbacks: {
+    async jwt({ token, user, account, profile }) {
+      if (account?.provider === "google" && profile?.email) {
+        const googleProfile = profile as {
+          email: string;
+          name: string;
+          avatar: string;
+        };
+        try {
+          const res = await fetch("http://localhost:6499/api/google-auth", {
+            method: "POST",
+            credentials: "include",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              email: googleProfile.email,
+              name: googleProfile.name,
+              avatar: googleProfile.avatar,
+            }),
+          });
+
+          const data = await res.json();
+          console.log("✅ AUTH RESPONSE:", data);
+
+          if (data.accessToken) {
+            return {
+              id: data.user._id,
+              email: data.user.email,
+              accessToken: data.accessToken,
+              refreshToken: data.refreshToken,
+              avatar: data.user.avatar,
+            };
+          }
+          // token.userId = data.user._id;
+        } catch (err) {
+          console.error("Google user sync failed", err);
+        }
+      }
+
+      if (user) {
+        token.accessToken = user.accessToken;
+        token.refreshToken = user.refreshToken;
+        token.avatar = user.avatar;
+      }
+      return token;
+    },
+    async session({ session, token }) {
+      session.user.id = token.userId as string;
+      session.user.accessToken = token.accessToken;
+      session.user.refreshToken = token.refreshToken;
+      session.user.avatar = token.avatar;
+      return session;
+    },
   },
-  async session({ session, token }) {
-    session.user.id = token.userId as string;
-    session.user.accessToken = token.accessToken;
-    session.user.refreshToken = token.refreshToken;
-    return session;
-  },
-}
-,
   pages: {
     signIn: "/login",
   },

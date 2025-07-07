@@ -2,12 +2,17 @@
 import { FileText } from "lucide-react";
 import Link from "next/link";
 import { useSession, signOut } from "next-auth/react";
+import apiClient from "@/utils/apiClient";
 
 export const Header = () => {
   const { data: session, status } = useSession();
 
   const user = session?.user;
-  console.log("user", user);
+const handleLogout = async () => {
+ await apiClient.delete('/logout')
+
+  signOut({ callbackUrl: "/login" });
+};
 
   return (
     <nav className="container flex items-center justify-between py-4 lg:px-4 px-2 mx-auto">
@@ -30,14 +35,14 @@ export const Header = () => {
       <div className="flex lg:justify-end lg:flex-1 items-center gap-4">
         {status === "authenticated" ? (
           <>
-            <Link href="/dashboard">create Organization</Link>
-            {user?.image ? (
+            <Link href="/dashboard"> Organization</Link>
+            {user?.avatar ? (
               <img
-                src={user.image}
+                src={user?.avatar}
                 alt="avatar"
                 width={32}
                 height={32}
-                className="rounded-full"
+                className="rounded-full"  
               />
             ) : (
               <img
@@ -49,7 +54,7 @@ export const Header = () => {
               />
             )}
             <button
-              onClick={() => signOut({ callbackUrl: "/login" })}
+              onClick={handleLogout}
               className="text-sm text-red-600"
             >
               Sign Out

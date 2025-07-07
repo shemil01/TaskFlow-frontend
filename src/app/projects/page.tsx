@@ -1,5 +1,5 @@
 import BgGradient from '@/components/common/BgGradient'
-import CreateProject from '@/components/home/projectSection'
+import Projects from '@/components/home/project/Project'
 import React from 'react'
 
 const page = () => {
@@ -7,7 +7,8 @@ const page = () => {
      <div className="relative w-full">
           <BgGradient />
           <div className="flex flex-col w-full">
-            <CreateProject />
+            {/* <CreateProject /> */}
+            <Projects />
           </div>
         </div>
   )

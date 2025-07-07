@@ -1,10 +1,11 @@
-import  { DefaultSession } from "next-auth";
+import { DefaultSession } from "next-auth";
 
 declare module "next-auth" {
   interface User {
     id: string;
     accessToken?: string;
     refreshToken?: string;
+    avatar: string;
   }
 
   interface Session extends DefaultSession {
@@ -12,6 +13,7 @@ declare module "next-auth" {
       id: string;
       accessToken?: string;
       refreshToken?: string;
+      avatar: string;
     } & DefaultSession["user"];
   }
 }
@@ -21,5 +23,6 @@ declare module "next-auth/jwt" {
     userId?: string;
     accessToken?: string;
     refreshToken?: string;
+    avatar: string;
   }
 }
